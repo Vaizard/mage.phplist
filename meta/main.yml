@@ -1,0 +1,18 @@
+
+galaxy_info:
+  author: Pavel Stratil
+  company: Vaizard Institute
+  license: MIT
+  min_ansible_version: 2.2
+  description: Phplist.
+  platforms:
+    - name: Ubuntu
+      versions:
+        - xenial
+    - name: Redhat
+      versions:
+        - 7
+  categories:
+    - system
+
+dependencies: []
