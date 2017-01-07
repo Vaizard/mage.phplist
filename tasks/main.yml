@@ -1,32 +1,36 @@
 ---
-- name: Download binary from MatterMost website
+- name: Downloading phplist
   get_url: 
-    url: http://heanet.dl.sourceforge.net/project/phplist/phplist/{{ phplist_version }}/phplist-{{ phplist_version }}.tgz
+    url: 'http://heanet.dl.sourceforge.net/project/phplist/phplist/{{ phplist_version }}/phplist-{{ phplist_version }}.tgz'
     dest: /tmp/
 
-- name: unpack mattermost archive
+- name: Ensuring phplist is installed
   unarchive: 
-    src: /tmp/phplist-{{ phplist_version }}.tgz 
-    dest: /opt/
-    copy: no
+    src: '/tmp/phplist-{{ phplist_version }}.tgz'
+    dest: '{{ phplist_path }}'
+    extra_opts: ['--strip-components=1', '--show-stored-names']
+    #extra_opts: ['--strip-components=1']
+    remote_src: yes
   args:
-    #creates: /opt/mattermost/bin/platform
+    creates: '{{ phplist_path }}/bin/phplist'
 
-#- name: Listen on public and private IP
-#  lineinfile:
-#    dest: /opt/mattermost/config/config.json
-#    line: '{{ item.line }}'
-#    regexp: '{{ item.regexp }}'
-#    backrefs: yes
-#  with_items:
-#    - { regexp: '"SiteURL":',                  line: '        "SiteURL": "{{ mattermost_config.SiteURL }}",' }
-#    - { regexp: '"DataSource":',               line: '        "DataSource": "{{ mattermost_db_user }}:{{ mattermost_db_password }}@tcp(127.0.0.1:3306)/{{ mattermost_db_name }}?charset=utf8mb4,utf8",' }
+- name: Ensuring phplist is configured
+  lineinfile:
+    dest: '{{ phplist_path }}/public_html/lists/config/config.php'
+    line: '{{ item.line }}'
+    regexp: '{{ item.regexp }}'
+    backrefs: yes
+  with_items:
+    - { regexp: "^(.*)database_host =(.*)'",                  line: "$database_host = '{{ phplist_database_host }}';" }
+    - { regexp: "^(.*)database_name =(.*)'",                  line: "$database_name = '{{ phplist_database_name }}';" }
+    - { regexp: "^(.*)database_user =(.*)'",                  line: "$database_user = '{{ phplist_database_user }}';" }
+    - { regexp: "^(.*)database_password =(.*)'",              line: "$database_password = '{{ phplist_database_password }}';" }
 
-#- name: Change mattermost directory permissions
-#  file:
-#    path: /opt/mattermost
-#    state: directory
-#    owner: "{{ mattermost_user }}"
-#    group: "{{ mattermost_user }}"
-#    recurse: yes
+- name: Change mattermost directory permissions
+  file:
+    path: '{{ phplist_path }}/public_html/lists/admin/plugins'
+    state: directory
+    owner: "{{ phplist_user }}"
+    group: "{{ phplist_user }}"
+    recurse: yes
 

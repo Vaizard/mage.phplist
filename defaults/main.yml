@@ -1,3 +1,8 @@
 ---
-phplist_version: 3.2.5
-
+phplist_version: 3.2.7
+phplist_path: /var/www/html/phplist
+phplist_database_host: 127.0.0.1
+phplist_database_name: phplist
+phplist_database_user: phplist
+phplist_database_password: mysecretpass
+phplist_user: www-data
