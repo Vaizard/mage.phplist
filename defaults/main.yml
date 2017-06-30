@@ -1,8 +1,26 @@
 ---
-phplist_version: 3.2.7
+phplist_version: 3.3.1
 phplist_path: /var/www/html/phplist
+phplist_pageroot: /phplist/public_html/lists/
 phplist_database_host: 127.0.0.1
 phplist_database_name: phplist
 phplist_database_user: phplist
-phplist_database_password: mysecretpass
+phplist_database_pass: mysecretpass
+phplist_envelope: 'bounce@example.com'
+phplist_bounce_host: 'mail.example.com'
+phplist_bounce_user: 'bounce@example.com'
+phplist_bounce_pass: 'pass-to-bounce-mailbox'
+phplist_bounce_port: '995/pop3/ssl/novalidate-cert'
+phplist_bounce_threshold: 3
+phplist_test: 1
+phplist_smtp_host: 'mail.example.com'
+phplist_smtp_user: 'letters@example.com:587'
+phplist_smtp_pass: 'pass-to-letters-mailbox'
+phplist_smtp_secure: 'tls'
+phplist_usertrack: 1
+phplist_clicktrack: 1
+phplist_list_exclude: 1
 phplist_user: www-data
+
+# The envelope sender is where computers should respond (in the case of bounce messages or errors); 
+# The From: address is where people should respond.

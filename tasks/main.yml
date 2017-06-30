@@ -1,8 +1,14 @@
 ---
 - name: Downloading phplist
   get_url: 
-    url: 'http://heanet.dl.sourceforge.net/project/phplist/phplist/{{ phplist_version }}/phplist-{{ phplist_version }}.tgz'
+    url: 'https://netcologne.dl.sourceforge.net/project/phplist/phplist/{{ phplist_version }}/phplist-{{ phplist_version }}.tgz'
     dest: /tmp/
+
+- name: Ensuring {{ phplist_path }} directory exists
+  file:
+    path: '{{ phplist_path }}'
+    state: directory
+    mode: 0755
 
 - name: Ensuring phplist is installed
   unarchive: 
@@ -14,17 +20,36 @@
   args:
     creates: '{{ phplist_path }}/bin/phplist'
 
+
+- name: Ensuring minimal config is backed up
+  command: mv "{{ phplist_path }}/public_html/lists/config/config.php" "{{ phplist_path }}/public_html/lists/config/config_minimal.php"
+  args:
+    creates: "{{ phplist_path }}/public_html/lists/config/config.php"
+
+
+- name: "Ensuring phplist is properly configured"
+  template:
+    src: "config.php.j2"
+    dest: "{{ phplist_path }}/public_html/lists/config/config.php"
+    mode: 0644
+
 - name: Ensuring phplist is configured
   lineinfile:
     dest: '{{ phplist_path }}/public_html/lists/config/config.php'
-    line: '{{ item.line }}'
-    regexp: '{{ item.regexp }}'
+    line: "{{ item.line }}"
+    regexp: "{{ item.regexp }}"
     backrefs: yes
-  with_items:
-    - { regexp: "^(.*)database_host =(.*)'",                  line: "$database_host = '{{ phplist_database_host }}';" }
-    - { regexp: "^(.*)database_name =(.*)'",                  line: "$database_name = '{{ phplist_database_name }}';" }
-    - { regexp: "^(.*)database_user =(.*)'",                  line: "$database_user = '{{ phplist_database_user }}';" }
-    - { regexp: "^(.*)database_password =(.*)'",              line: "$database_password = '{{ phplist_database_password }}';" }
+ with_items:
+    - { regexp: "^(.*)database_host =(.*)'",               line: "$database_host = '{{ phplist_database_host }}';" }
+    - { regexp: "^(.*)database_name =(.*)'",               line: "$database_name = '{{ phplist_database_name }}';" }
+    - { regexp: "^(.*)database_user =(.*)'",               line: "$database_user = '{{ phplist_database_user }}';" }
+    - { regexp: "^(.*)database_password =(.*)'",           line: "$database_password = '{{ phplist_database_pass }}';" }
+    - { regexp: "^(.*)define.*'TEST',(.*);",               line: "define('TEST', {{ phplist_test }});" }
+    - { regexp: "^(.*)define(.*)'PHPMAILERHOST',(.*);",      line: "define('PHPMAILERHOST', '{{ phplist_smtp_host }}');" }
+    - { regexp: "^(.*)define(.*)'PHPMAILER_SECURE',(.*);",   line: "define('PHPMAILER_SECURE', '{{ phplist_smtp_secure}}');" }
+    - { regexp: "^(.*)$phpmailer_smtpuser = '(.*)'",       line: "$phpmailer_smtpuser = '{{ phplist_smtp_user }}';" }
+    - { regexp: "^(.*)$phpmailer_smtppassword = '(.*)'",   line: "$phpmailer_smtppassword = '{{ phplist_smtp_pass }}';" }
+
 
 - name: Change mattermost directory permissions
   file:
